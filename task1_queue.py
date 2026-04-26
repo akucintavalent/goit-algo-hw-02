@@ -39,13 +39,18 @@ def process_request() -> bool:
 
 def main() -> None:
     should_exit = False
+
     while not should_exit:
         requests_to_generate_count = random.randint(1, 5)
         for _ in range(requests_to_generate_count):
             generate_request()
 
         queue_size = queue.qsize()
-        requests_to_process_count = random.randint(1, queue_size) if queue_size else 0
+        if queue_size:
+            requests_to_process_count = random.randint(1, queue_size)
+        else:
+            requests_to_process_count = 0
+
         for _ in range(requests_to_process_count):
             process_request()
 
