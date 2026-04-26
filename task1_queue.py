@@ -1,63 +1,61 @@
 ﻿from __future__ import annotations
 
 from queue import Queue
+import random
 
 
 queue: Queue[Request] = Queue()
-current_request_no = 0
+current_request_no = 1
 
 
 class Request:
-    def __init__(self, description: str, request_no: int | None = None):
-        self.description = description
+    def __init__(self, request_no: int):
         self.request_no = request_no
 
     def __str__(self) -> str:
-        if self.request_no is None:
-            return f"Request: {self.description}"
-        return f"Request #{self.request_no}: {self.description}"
+        return f"Request #{self.request_no}"
 
 
 def generate_request() -> None:
     global current_request_no
 
-    description = input("Enter request description: ").strip()
-    if not description:
-        print("Empty description. Request not added.")
-        return
+    request = Request(current_request_no)
 
     current_request_no += 1
-    request = Request(description, request_no=current_request_no)
+
     queue.put(request)
     print(f"Added {request}")
 
 
-def process_request() -> None:
+def process_request() -> bool:
     if queue.empty():
         print("No requests to process.")
-        return
+        return False
 
     request = queue.get()
     print(f"Processed {request}")
+    return True
 
 
 def main() -> None:
-    while True:
-        print("\n1. Generate Request")
-        print("2. Process Request")
-        print("3. Exit")
-
-        choice = input("Enter your choice: ").strip()
-
-        if choice == "1":
+    should_exit = False
+    while not should_exit:
+        requests_to_generate_count = random.randint(1, 5)
+        for _ in range(requests_to_generate_count):
             generate_request()
-        elif choice == "2":
+
+        queue_size = queue.qsize()
+        requests_to_process_count = random.randint(1, queue_size) if queue_size else 0
+        for _ in range(requests_to_process_count):
             process_request()
-        elif choice == "3":
-            print("Exiting...")
-            break
-        else:
-            print("Invalid choice. Please try again.")
+
+        if queue.qsize() == 0:
+            print("The queue is empty.")
+
+        try:
+            input("Press Enter to continue or Ctrl+C to exit.")
+        except KeyboardInterrupt:
+            should_exit = True
 
 
 if __name__ == "__main__":
